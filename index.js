@@ -13,7 +13,7 @@ async function insertLogo(imagePath, logoPath, options) {
 
         const defaultOptions = {
             logo_size: 'M',
-            logo_position: 'top-left' ,
+            logo_position: 'top-left',
             logo_opacity: 0.8
         }
         const finalOptions = {
@@ -21,7 +21,8 @@ async function insertLogo(imagePath, logoPath, options) {
             logo_position: options.logo_position ? options.logo_position : defaultOptions.logo_position,
             logo_opacity: options.logo_opacity ? options.logo_opacity : defaultOptions.logo_opacity
         }
-        console.log(finalOptions)
+        console.log(checkOptions(finalOptions))
+        if(checkOptions(finalOptions).status === 'error') return { status: 'error', msg: checkOptions(finalOptions).msg}
 
         if(!checkExistPath(imageFinalPath)) return { status: 'error', msg: 'Image is not exist on the path.'}
         if(!checkExistPath(logoFinalPath)) return { status: 'error', msg: 'Logo is not exist on the path.'}
@@ -130,6 +131,39 @@ function getOriginalMimeType(mimeType) {
         }
     })
     return type
+}
+function checkOptions(options) {
+    const allowedLogoSizes = ['S', 'M', 'L']
+    const allowedLogoPositions = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+    let msg = '';
+    let status = 'success';
+    Object.keys(options).forEach(key=> {
+       if(key === 'logo_size') {
+           if(!allowedLogoSizes.includes(options.logo_size)) {
+               msg = 'Logo size is not allowed. Please use one of "S", "M", "L".'
+               status = 'error'
+           }
+       }
+       if(key === 'logo_position') {
+           if(!allowedLogoPositions.includes(options.logo_position)) {
+               msg = 'Logo position is not allowed. Please use one of "top-left", "top-right", "bottom-left", "bottom-right".'
+               status = 'error'
+           }
+       }
+       if(key === 'logo_opacity') {
+           if(typeof options.logo_opacity !== 'number') {
+               msg = 'Logo opacity is not number. Please make sure opacity is a number and between 0.0 to 1.0.'
+               status = 'error'
+           }
+           if(1 >= options.logo_opacity >= 0) {
+               msg = 'Logo opacity is not in the rage. Please make sure opacity is a number and between 0.0 to 1.0.'
+               status = 'error'
+           }
+
+       }
+   })
+    return {status, msg};
+
 }
 
 module.exports = insertLogo
