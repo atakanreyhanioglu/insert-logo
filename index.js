@@ -10,19 +10,20 @@ async function insertLogo(imagePath, logoPath, options) {
         let imageSvg = false;
         let logoSvg = false;
 
-
         const defaultOptions = {
             logo_size: 'M',
             logo_position: 'top-left',
-            logo_opacity: 0.8
+            logo_opacity: 0.8,
+            override: false
         }
         const finalOptions = {
             logo_size: options.logo_size ? options.logo_size : defaultOptions.logo_size,
             logo_position: options.logo_position ? options.logo_position : defaultOptions.logo_position,
-            logo_opacity: options.logo_opacity ? options.logo_opacity : defaultOptions.logo_opacity
+            logo_opacity: options.logo_opacity ? options.logo_opacity : defaultOptions.logo_opacity,
+            override: options.override ? options.override : defaultOptions.override
         }
-        console.log(checkOptions(finalOptions))
-        if(checkOptions(finalOptions).status === 'error') return { status: 'error', msg: checkOptions(finalOptions).msg}
+        const resultOption = checkOptions(finalOptions)
+        if(resultOption.status === 'error') return { status: 'error', msg: resultOption.msg}
 
         if(!checkExistPath(imageFinalPath)) return { status: 'error', msg: 'Image is not exist on the path.'}
         if(!checkExistPath(logoFinalPath)) return { status: 'error', msg: 'Logo is not exist on the path.'}
@@ -48,13 +49,15 @@ async function insertLogo(imagePath, logoPath, options) {
         const logo = await Jimp.read(logoFinalPath);
        //  console.log('logo read.')
 
-        logo.resize(140,140);
+
+        const logoSizes = logoResize(logo.bitmap.width, logo.bitmap.height, finalOptions)
+        logo.resize(logoSizes.width, logoSizes.height);
        // console.log('logo resized.')
 
         image.composite(logo, 0, 0, {
             mode: Jimp.BLEND_SOURCE_OVER,
             opacityDest: 1,
-            opacitySource: 0.8
+            opacitySource: finalOptions.logo_opacity
         })
         // console.log('image combined.')
         const outputPath = `${path.dirname(require.main.filename)}/output/insert-logo/`
@@ -73,8 +76,11 @@ async function insertLogo(imagePath, logoPath, options) {
         const newImageName = outputNameSection.split('.' + extension)[0] + '-il'
        // console.log('Output image name created.')
         const newImagePath = `${outputPath + `${newImageName}.` + extension}`
-        if(fs.existsSync(newImagePath)) {
-            return {status: 'error', msg: 'You already have this image in insert-logo folder.'}
+
+        if(!finalOptions.override) {
+            if(fs.existsSync(newImagePath)) {
+                return {status: 'error', msg: 'You already have this image in insert-logo folder.'}
+            }
         }
 
         await image.writeAsync(newImagePath);
@@ -98,6 +104,24 @@ async function insertLogo(imagePath, logoPath, options) {
         console.log(e)
         return e
     }
+}
+
+function logoResize(w, h, options) {
+    let width;
+    let height;
+    if(options.logo_size === 'S') {
+        width = w / 4
+        height = h / 4
+    }
+    if(options.logo_size === 'M') {
+        width = w / 2
+        height = h / 2
+    }
+    if(options.logo_size === 'L') {
+        width = w
+        height = h
+    }
+    return {width, height}
 }
 
 async function svgToPng(svgPath) {
@@ -155,7 +179,11 @@ function checkOptions(options) {
                msg = 'Logo opacity is not number. Please make sure opacity is a number and between 0.0 to 1.0.'
                status = 'error'
            }
-           if(1 >= options.logo_opacity >= 0) {
+           if(1 < options.logo_opacity) {
+               msg = 'Logo opacity is not in the rage. Please make sure opacity is a number and between 0.0 to 1.0.'
+               status = 'error'
+           }
+           if(0 > options.logo_opacity) {
                msg = 'Logo opacity is not in the rage. Please make sure opacity is a number and between 0.0 to 1.0.'
                status = 'error'
            }
