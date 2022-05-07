@@ -20,47 +20,51 @@ async function insertLogo(imagePath, logoPath) {
             await svgToPng(imageFinalPath)
             imageFinalPath = imagePath.split('.svg')[0] + '.png'
             imageSvg = true
-            console.log('Is image Svg ? Yes, it is.')
+         //   console.log('Is image Svg ? Yes, it is.')
         }
         if(logoFinalPath.includes('.svg')){
             await svgToPng(logoFinalPath)
             logoFinalPath = logoPath.split('.svg')[0] + '.png'
             logoSvg = true
-            console.log('Is logo Svg ? Yes, it is.')
+        //    console.log('Is logo Svg ? Yes, it is.')
         }
+
         const image = await Jimp.read(imageFinalPath);
-        console.log('image read.')
+       // console.log('image read.')
         const logo = await Jimp.read(logoFinalPath);
-        console.log('logo read.')
+       //  console.log('logo read.')
 
         logo.resize(140,140);
-        console.log('logo resized.')
+       // console.log('logo resized.')
 
         image.composite(logo, 0, 0, {
             mode: Jimp.BLEND_SOURCE_OVER,
             opacityDest: 1,
-            opacitySource: 0.6
+            opacitySource: 0.8
         })
-        console.log('image combined.')
+        // console.log('image combined.')
         const outputPath = `${path.dirname(require.main.filename)}/output/insert-logo/`
         if (!fs.existsSync(outputPath)){
             fs.mkdirSync(outputPath, { recursive: true });
-            console.log('Directory created at: ' + `${path.dirname(require.main.filename)}/output/insert-logo`)
+         //   console.log('Directory created at: ' + `${path.dirname(require.main.filename)}/output/insert-logo`)
         }
         const extension = getOriginalMimeType(image._originalMime)
-        console.log('Extension checked.')
+         // console.log('Extension checked.')
+        if(!imageFinalPath.includes('/')){
+            imageFinalPath = '/' + imageFinalPath
+        }
         const givenImageDir =  imageFinalPath.slice(0, imageFinalPath.lastIndexOf('/'))
         const outputNameSection = (imageFinalPath.split(`${givenImageDir}/`)[1])
         if(!outputNameSection.includes(extension)) return { status: 'error', msg: 'Please retry by using an image with its original extension.' }
         const newImageName = outputNameSection.split('.' + extension)[0] + '-il'
-        console.log('Output image name created.')
+       // console.log('Output image name created.')
         const newImagePath = `${outputPath + `${newImageName}.` + extension}`
         if(fs.existsSync(newImagePath)) {
             return {status: 'error', msg: 'You already have this image in insert-logo folder.'}
         }
 
         await image.writeAsync(newImagePath);
-        console.log('Logo implemented.')
+       // console.log('Logo implemented.')
         if(imageSvg) {
             if(fs.existsSync(imageFinalPath)) {
                 fs.unlinkSync(imageFinalPath)
