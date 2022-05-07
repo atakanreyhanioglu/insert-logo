@@ -53,8 +53,13 @@ async function insertLogo(imagePath, logoPath, options) {
         const logoSizes = logoResize(logo.bitmap.width, logo.bitmap.height, finalOptions)
         logo.resize(logoSizes.width, logoSizes.height);
        // console.log('logo resized.')
+        const imageSizes = {
+            width: image.bitmap.width,
+            height: image.bitmap.height
+        }
+        const logoPosition = logoPositions(logoSizes, imageSizes, finalOptions)
 
-        image.composite(logo, 0, 0, {
+        image.composite(logo, logoPosition.x, logoPosition.y, {
             mode: Jimp.BLEND_SOURCE_OVER,
             opacityDest: 1,
             opacitySource: finalOptions.logo_opacity
@@ -103,6 +108,23 @@ async function insertLogo(imagePath, logoPath, options) {
     }catch (e) {
         console.log(e)
         return e
+    }
+}
+function logoPositions(logoSizes, imageSizes, options) {
+    if(options.logo_position === 'top-left') {
+        return {x: 0, y: 0}
+    }
+    if(options.logo_position === 'top-right') {
+        return {x: imageSizes.width - logoSizes.width , y: 0}
+    }
+    if(options.logo_position === 'bottom-left') {
+        return {x: 0 , y: imageSizes.height - logoSizes.height}
+    }
+    if(options.logo_position === 'bottom-right') {
+        return {x: imageSizes.width - logoSizes.width , y: imageSizes.height - logoSizes.height}
+    }
+    if(options.logo_position === 'center') {
+        return {x: (imageSizes.width - logoSizes.width) / 2 , y:( imageSizes.height - logoSizes.height) / 2}
     }
 }
 
@@ -158,7 +180,7 @@ function getOriginalMimeType(mimeType) {
 }
 function checkOptions(options) {
     const allowedLogoSizes = ['S', 'M', 'L']
-    const allowedLogoPositions = ['top-left', 'top-right', 'bottom-left', 'bottom-right']
+    const allowedLogoPositions = ['top-left', 'top-right', 'bottom-left', 'bottom-right', 'center']
     let msg = '';
     let status = 'success';
     Object.keys(options).forEach(key=> {
