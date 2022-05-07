@@ -3,12 +3,25 @@ const sharp = require("sharp")
 const fs = require("fs");
 const path = require('path');
 
-async function insertLogo(imagePath, logoPath) {
+async function insertLogo(imagePath, logoPath, options) {
     try {
         let imageFinalPath = imagePath
         let logoFinalPath = logoPath
         let imageSvg = false;
         let logoSvg = false;
+
+
+        const defaultOptions = {
+            logo_size: 'M',
+            logo_position: 'top-left' ,
+            logo_opacity: 0.8
+        }
+        const finalOptions = {
+            logo_size: options.logo_size ? options.logo_size : defaultOptions.logo_size,
+            logo_position: options.logo_position ? options.logo_position : defaultOptions.logo_position,
+            logo_opacity: options.logo_opacity ? options.logo_opacity : defaultOptions.logo_opacity
+        }
+        console.log(finalOptions)
 
         if(!checkExistPath(imageFinalPath)) return { status: 'error', msg: 'Image is not exist on the path.'}
         if(!checkExistPath(logoFinalPath)) return { status: 'error', msg: 'Logo is not exist on the path.'}
@@ -74,6 +87,10 @@ async function insertLogo(imagePath, logoPath) {
             if(fs.existsSync(logoFinalPath)) {
                 fs.unlinkSync(logoFinalPath)
             }
+        }
+        image.output = {
+          image_name: newImageName,
+          image_path: newImagePath
         }
         return {status: 'success', data: image}
     }catch (e) {
