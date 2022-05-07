@@ -1,0 +1,31 @@
+{
+  "name": "insert-logo",
+  "version": "1.0.0",
+  "description": "This package allows you insert a logo to any image.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atakanreyhanioglu/insert-logo.git"
+  },
+  "keywords": [
+    "image",
+    "logo",
+    "insert",
+    "paste",
+    "add",
+    "picture"
+  ],
+  "author": "atakan reyhanioglu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/atakanreyhanioglu/insert-logo/issues"
+  },
+  "homepage": "https://github.com/atakanreyhanioglu/insert-logo#readme",
+  "dependencies": {
+    "jimp": "^0.16.1",
+    "sharp": "^0.30.4"
+  }
+}
