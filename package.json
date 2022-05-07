@@ -1,6 +1,6 @@
 {
   "name": "insert-logo",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This package allows you insert a logo to any image.",
   "main": "index.js",
   "scripts": {
