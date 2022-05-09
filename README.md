@@ -44,7 +44,7 @@ main()
 
 Logo inserted image will be generated at folder on path: 
 ``` 
-root/output/insert-logo/{imageName}-li.{imageExtension}
+root/output/insert-logo/{imageName}-il.{imageExtension}
 ```
 
 ## License
